@@ -1,0 +1,214 @@
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+#importing the data 
+df=pd.read_excel('/content/drive/My Drive/DLCP/cricket_data.xlsx')
+
+df.head()
+df.tail()
+df.shape()
+df.info()
+
+#lets divide the data into categorical and numerical
+cat=[]
+num=[]
+for i in df.columns:
+    if df[i].dtype=="object":
+        cat.append(i)
+    else:
+        num.append(i)
+print(cat)
+print(num)
+
+df[cat].describe().T
+
+
+for column in df.columns:
+    if df[column].dtype == 'object':
+        print(column.upper(),': ',df[column].nunique())
+        print(df[column].value_counts().sort_values())
+        print('\n')
+
+#lets understand pecentage wins over oppenents
+grouped= df['Opponent'].groupby(df['Result']).value_counts()
+
+grouped / grouped.groupby(level = 1).sum()*100
+
+## Are there any duplicate records
+
+# Check for duplicate data
+
+dups = df.duplicated()
+print('Number of duplicate rows = %d' % (dups.sum()))
+
+df[dups]
+
+df.isnull().sum()
+
+# lets impute missing values in categorical data
+
+for column in ['Match_light_type', 'Match_format', 'First_selection', 'Opponent', 'Season', 'Offshore']:
+    df[column].fillna(df[column].mode()[0], inplace=True)
+
+cat1=["Match_light_type", "Match_format", "First_selection", "Opponent", "Season", "Offshore"]
+
+for i in cat1:
+    df[i]=df[i].astype("object")
+
+# lets impute missing values in numerical data
+num1=['Avg_team_Age', 'Bowlers_in_team', 'Wicket_keeper_in_team', 'All_rounder_in_team', 'Audience_number', 'Max_run_scored_1over', 'Max_wicket_taken_1over', 'Extra_bowls_bowled', 'Min_run_given_1over', 'Min_run_scored_1over', 'Max_run_given_1over', 'extra_bowls_opponent', 'player_highest_run']
+
+for i in num1:
+    df[i].fillna(df[i].median(),inplace=True)
+
+df.isnull().sum()
+
+"""### All null values have been appropriately imputed"""
+
+print(num)
+
+"""# Univarite Analysis"""
+
+fig, axes = plt.subplots(nrows=4,ncols=2)
+fig.set_size_inches(18,18)
+a = sns.distplot(df['Avg_team_Age'] , ax=axes[0][0])
+a = sns.boxplot(df['Avg_team_Age'] , orient = "v" , ax=axes[0][1])
+
+
+a = sns.distplot(df['Bowlers_in_team'] , ax=axes[1][0])
+a = sns.boxplot(df['Bowlers_in_team'] , orient = "v" , ax=axes[1][1])
+
+
+
+a = sns.distplot(df['Wicket_keeper_in_team'] , ax=axes[2][0])
+a = sns.boxplot(df['Wicket_keeper_in_team'] , orient = "v" , ax=axes[2][1])
+
+
+
+a = sns.distplot(df['All_rounder_in_team'] , ax=axes[3][0])
+a = sns.boxplot(df['All_rounder_in_team'] , orient = "v" , ax=axes[3][1])
+
+
+plt.show()
+
+fig, axes = plt.subplots(nrows=4,ncols=2)
+fig.set_size_inches(18,18)
+a = sns.distplot(df['Audience_number'] , ax=axes[0][0])
+a = sns.boxplot(df['Audience_number'] , orient = "v" , ax=axes[0][1])
+
+
+a = sns.distplot(df['Max_wicket_taken_1over'] , ax=axes[1][0])
+a = sns.boxplot(df['Max_wicket_taken_1over'] , orient = "v" , ax=axes[1][1])
+
+
+
+a = sns.distplot(df['Extra_bowls_bowled'] , ax=axes[2][0])
+a = sns.boxplot(df['Extra_bowls_bowled'] , orient = "v" , ax=axes[2][1])
+
+
+
+a = sns.distplot(df['Max_wicket_taken_1over'] , ax=axes[3][0])
+a = sns.boxplot(df['Max_wicket_taken_1over'] , orient = "v" , ax=axes[3][1])
+
+
+plt.show()
+
+fig, axes = plt.subplots(nrows=5,ncols=2)
+fig.set_size_inches(18,18)
+a = sns.distplot(df['Min_run_given_1over'] , ax=axes[0][0])
+a = sns.boxplot(df['Min_run_given_1over'] , orient = "v" , ax=axes[0][1])
+
+
+a = sns.distplot(df['Min_run_scored_1over'] , ax=axes[1][0])
+a = sns.boxplot(df['Min_run_scored_1over'] , orient = "v" , ax=axes[1][1])
+
+
+
+a = sns.distplot(df['Max_run_given_1over'] , ax=axes[2][0])
+a = sns.boxplot(df['Max_run_given_1over'] , orient = "v" , ax=axes[2][1])
+
+
+
+a = sns.distplot(df['extra_bowls_opponent'] , ax=axes[3][0])
+a = sns.boxplot(df['extra_bowls_opponent'] , orient = "v" , ax=axes[3][1])
+
+
+a = sns.distplot(df['player_highest_run'] , ax=axes[4][0])
+a = sns.boxplot(df['player_highest_run'] , orient = "v" , ax=axes[4][1])
+
+plt.show()
+
+"""# Bivariate Analysis"""
+
+print(cat)
+
+sns.countplot(x="Match_light_type", hue="Result", data=df)
+
+sns.countplot(x="Match_format", hue="Result", data=df)
+
+sns.countplot(x="First_selection", hue="Result", data=df)
+
+sns.set(rc={"figure.figsize":(10, 10)})
+
+sns.countplot(x="Opponent", hue="Result", data=df)
+
+sns.countplot(x="Players_scored_zero", hue="Opponent", data=df)
+
+sns.countplot(x="player_highest_wicket", hue="Result", data=df)
+
+"""Line plot"""
+
+sns.countplot(x="Match_format", hue="Opponent", data=df)
+
+df.Players_scored_zero[df.Players_scored_zero == 'Three'] = 3
+
+df.player_highest_wicket[df.player_highest_wicket == 'Three'] = 3
+
+df.replace(to_replace ="20-20",
+                 value ="T20")
+
+df=df.replace(to_replace ="Bat",
+                 value ="Batting")
+
+#sns.pairplot(df ,diag_kind='kde' ,hue='Result');
+
+plt.figure(figsize=(18,18))
+sns.heatmap(df.corr(),annot=True)
+plt.show()
+
+# construct box plot for continuous variables
+plt.figure(figsize=(10,10))
+df.boxplot(vert=0)
+plt.show()
+
+#treating outliers
+def remove_outlier(num):
+    sorted(num)
+    Q1,Q3=np.percentile(num,[25,75])
+    IQR=Q3-Q1
+    lower_range= Q1-(1.5 * IQR)
+    upper_range= Q3+(1.5 * IQR)
+    return lower_range, upper_range
+
+for column in df[num].columns:
+    lr,ur=remove_outlier(df[column])
+    df[column]=np.where(df[column]>ur,ur,df[column])
+    df[column]=np.where(df[column]<lr,lr,df[column])
+
+plt.figure(figsize=(10,10))
+df.boxplot(vert=0)
+plt.show()
+
+df.Result[df.Result == 'Win'] = 0
+df.Result[df.Result == 'Loss'] = 1
+
+df=df.drop('Game_number',axis=1)
+
+cat2 = ['Match_light_type', 'Match_format', 'First_selection', 'Opponent', 'Season', 'Offshore', 'Players_scored_zero', 'player_highest_wicket']
+
+df1 =pd.get_dummies(df, columns=cat2,drop_first=True)
+
+df1.head()
+
